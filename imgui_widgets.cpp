@@ -6003,7 +6003,7 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
     if (span_all_columns && window->DC.CurrentColumns)
         PushColumnsBackground();
     else if (span_all_columns && g.CurrentTable)
-        PushTableBackground();
+        TablePushBackgroundChannel();
 
     // We use NoHoldingActiveID on menus so user can click and _hold_ on a menu then drag to browse child entries
     ImGuiButtonFlags button_flags = 0;
@@ -6053,7 +6053,7 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
     if (span_all_columns && window->DC.CurrentColumns)
         PopColumnsBackground();
     else if (span_all_columns && g.CurrentTable)
-        PopTableBackground();
+        TablePopBackgroundChannel();
 
     if (flags & ImGuiSelectableFlags_Disabled) PushStyleColor(ImGuiCol_Text, style.Colors[ImGuiCol_TextDisabled]);
     RenderTextClipped(text_min, text_max, label, NULL, &label_size, style.SelectableTextAlign, &bb);
@@ -10386,7 +10386,7 @@ void    ImGui::TableSetColumnWidthAutoAll(ImGuiTable* table)
     }
 }
 
-void    ImGui::PushTableBackground()
+void    ImGui::TablePushBackgroundChannel()
 {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = g.CurrentWindow;
@@ -10398,7 +10398,7 @@ void    ImGui::PushTableBackground()
     table->DrawSplitter.SetCurrentChannel(window->DrawList, table->Bg1DrawChannelCurrent);
 }
 
-void    ImGui::PopTableBackground()
+void    ImGui::TablePopBackgroundChannel()
 {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = g.CurrentWindow;
@@ -10910,7 +10910,6 @@ void ImGui::TableSortSpecsBuild(ImGuiTable* table)
 
     // Write output
     table->SortSpecsData.resize(table->SortSpecsCount);
-    table->SortSpecs.ColumnsMask = 0x00;
     for (int column_n = 0; column_n < table->ColumnsCount; column_n++)
     {
         ImGuiTableColumn* column = &table->Columns[column_n];
@@ -10921,7 +10920,6 @@ void ImGui::TableSortSpecsBuild(ImGuiTable* table)
         sort_spec->ColumnIndex = (ImU8)column_n;
         sort_spec->SortOrder = (ImU8)column->SortOrder;
         sort_spec->SortDirection = column->SortDirection;
-        table->SortSpecs.ColumnsMask |= (ImU64)1 << column_n;
     }
     table->SortSpecs.Specs = table->SortSpecsData.Data;
     table->SortSpecs.SpecsCount = table->SortSpecsData.Size;
